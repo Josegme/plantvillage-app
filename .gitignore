@@ -1,0 +1,21 @@
+# Entornos y caché de Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Secretos
+.env
+
+# Datos y bases de datos locales
+data/
+*.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

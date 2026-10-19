@@ -1,0 +1,11 @@
+{
+  "n_test": 5431,
+  "n_clases": 38,
+  "accuracy_test": 0.9740379303995581,
+  "f1_macro_test": 0.966762574546659,
+  "top3_accuracy_test": 0.9981587184680538,
+  "enfermas_predichas_sanas_test": 8,
+  "enfermas_test": 3923,
+  "accuracy_val": 0.9734806629834254,
+  "f1_macro_val": 0.9644162073245894
+}
