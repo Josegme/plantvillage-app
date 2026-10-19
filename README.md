@@ -1,0 +1,7 @@
+---
+title: PlantVillage - Diagnóstico de hojas
+sdk: gradio
+sdk_version: 6.30.0
+python_version: "3.13"
+app_file: app.py
+---
