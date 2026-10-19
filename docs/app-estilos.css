@@ -1,0 +1,116 @@
+/* Estilos de la interfaz. Paleta pensada para el tema claro (ver presentacion.JS_TEMA_CLARO).
+   Verde clorofila = marca; ocre = único color de aviso ("no concluyente" y nota permanente). */
+:root {
+  --pv-papel: #F2F5EE;
+  --pv-hoja: #FBFCF9;
+  --pv-tinta: #1D2A22;
+  --pv-tinta-suave: #42524A;
+  --pv-linea: #D6DED1;
+  --pv-linea-suave: #E3E9DE;
+  --pv-clorofila: #2B6B47;
+  --pv-clorofila-clara: #5E9B77;
+  --pv-ocre: #B7841B;
+  --pv-ocre-fondo: #F6EEDC;
+  --pv-ocre-texto: #4A3A12;
+  --pv-error: #B5442C;
+  --pv-error-fondo: #F8E7E1;
+  --pv-error-texto: #7A2C1A;
+  --pv-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+}
+
+.gradio-container { max-width: 1040px !important; margin-inline: auto; }
+
+/* Cabecera */
+.pv-cabecera { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0 0.25rem; }
+.pv-marca { flex: none; }
+.pv-titulo { margin: 0; font-size: 1.75rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.15; color: var(--pv-tinta); }
+.pv-subtitulo { margin: 0.2rem 0 0; color: var(--pv-tinta-suave); font-size: 1.02rem; }
+
+/* Aviso permanente (siempre visible, fuera de las pestañas) */
+.pv-aviso {
+  margin: 0.5rem 0 0.25rem; padding: 0.6rem 0.9rem;
+  background: var(--pv-ocre-fondo); color: var(--pv-ocre-texto);
+  border-left: 3px solid var(--pv-ocre); border-radius: 2px;
+  font-size: 0.92rem; line-height: 1.5;
+}
+
+/* Estados del panel de resultado */
+.pv-vacio { padding: 2rem 1.25rem; border: 1px dashed #BDC8B7; border-radius: 4px; color: var(--pv-tinta-suave); }
+.pv-vacio p { margin: 0; }
+.pv-alerta {
+  padding: 0.9rem 1.1rem; background: var(--pv-error-fondo); color: var(--pv-error-texto);
+  border-left: 3px solid var(--pv-error); border-radius: 2px;
+}
+.pv-alerta p { margin: 0; }
+
+/* Resultado: la "etiqueta de muestra" */
+.pv-resultado {
+  background: var(--pv-hoja); border: 1px solid var(--pv-linea); border-top: 4px solid var(--pv-clorofila);
+  border-radius: 4px; padding: 1.15rem 1.35rem 1rem; color: var(--pv-tinta);
+}
+.pv-resultado--firme { border-top-color: var(--pv-clorofila); }
+.pv-resultado--nc { border-top-color: var(--pv-ocre); }
+.pv-cultivo { margin: 0; color: var(--pv-tinta-suave); font-size: 0.95rem; }
+.pv-estado { margin: 0.1rem 0 0.9rem; font-size: 1.85rem; font-weight: 650; line-height: 1.15; letter-spacing: -0.01em; }
+.pv-explicacion { margin: 0 0 1rem; line-height: 1.55; color: var(--pv-ocre-texto); }
+
+.pv-medidor { margin-bottom: 0.25rem; }
+.pv-pista { position: relative; height: 10px; background: #DCE4D7; border-radius: 2px; }
+.pv-relleno { height: 100%; background: var(--pv-clorofila); border-radius: 2px; }
+.pv-resultado--nc .pv-relleno { background: var(--pv-ocre); }
+.pv-umbral { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--pv-tinta); }
+.pv-medidor-texto { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; align-items: baseline; margin: 0.6rem 0 0; }
+.pv-medidor-texto span { color: var(--pv-tinta-suave); font-size: 0.85rem; }
+
+.pv-sub { margin: 1.35rem 0 0.35rem; font-size: 1rem; font-weight: 600; }
+.pv-alternativas { list-style: none; margin: 0; padding: 0; }
+.pv-alternativas li {
+  display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(56px, 1fr) 4.6em; gap: 0.2rem 0.8rem;
+  align-items: center; padding: 0.5rem 0; border-top: 1px solid var(--pv-linea-suave);
+}
+.pv-barra { display: block; height: 6px; background: var(--pv-linea-suave); border-radius: 2px; overflow: hidden; }
+.pv-barra i { display: block; height: 100%; background: var(--pv-clorofila-clara); }
+.pv-valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--pv-tinta-suave); }
+@media (max-width: 520px) {
+  .pv-alternativas li { grid-template-columns: minmax(0, 1fr) 4.6em; }
+  .pv-nombre { grid-column: 1 / -1; }
+}
+
+/* Textos largos (pestañas «Para qué sirve» y «Cómo se hizo»): serif, renglón corto */
+.pv-lectura { max-width: 68ch; }
+.pv-lectura, .pv-lectura p, .pv-lectura li {
+  font-family: var(--pv-serif); font-size: 1.06rem; line-height: 1.65; color: var(--pv-tinta);
+}
+.pv-lectura h2, .pv-lectura h3, .pv-lectura table, .pv-lectura th, .pv-lectura td {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.pv-lectura h2 { margin: 0.5rem 0 1rem; font-size: 1.7rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.2; }
+.pv-lectura h3 { margin: 2.2rem 0 0.5rem; font-size: 1.2rem; font-weight: 650; line-height: 1.3; }
+.pv-lectura p { margin: 0 0 0.9rem; }
+.pv-lectura ul, .pv-lectura ol { margin: 0 0 1rem; padding-left: 1.3rem; }
+.pv-lectura li { margin-bottom: 0.4rem; }
+.pv-lectura table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.2rem; font-size: 0.95rem; line-height: 1.45; }
+.pv-lectura th, .pv-lectura td { padding: 0.55rem 0.7rem 0.55rem 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--pv-linea); }
+.pv-lectura th { font-weight: 600; border-bottom: 2px solid var(--pv-tinta); }
+.pv-lectura em { font-style: italic; }
+
+/* Móvil: con 5 pestañas la barra medía ~560 px y ensanchaba toda la página. `contain: inline-size`
+   hace que la barra no cuente para el ancho del contenedor; Gradio entonces agrupa las pestañas
+   sobrantes en el menú «···». */
+.gradio-container .tab-wrapper { contain: inline-size; }
+.gradio-container .tab-container:not(.visually-hidden) { overflow-x: auto; scrollbar-width: none; }
+
+/* Contraste (SC 1.4.3): pestaña activa, pie de Gradio y botones de iconos con objetivo táctil mínimo (SC 2.5.8) */
+.gradio-container .tab-container button.selected { color: var(--pv-clorofila); }
+.gradio-container footer, .gradio-container footer a { color: var(--pv-tinta-suave); }
+.gradio-container .icon-button, .gradio-container .source-selection button.icon { min-width: 24px; min-height: 24px; }
+.gradio-container input[type="number"], .gradio-container button.reset-button { min-height: 28px; }
+.gradio-container footer a { display: inline-block; min-height: 24px; line-height: 24px; }
+
+/* Foco visible para teclado */
+.gradio-container button:focus-visible,
+.gradio-container [role="tab"]:focus-visible,
+.gradio-container input:focus-visible,
+.gradio-container textarea:focus-visible {
+  outline: 2px solid var(--pv-clorofila); outline-offset: 2px;
+}
