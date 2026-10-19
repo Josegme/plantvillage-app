@@ -15,10 +15,12 @@ from pathlib import Path
 
 import gradio as gr
 
+import contenido
 import etiquetas
 import historial
 import metricas
 import preprocesado
+import presentacion
 from admin import Administracion, Bloqueado, NoAutorizado, PanelAdmin
 from inferencia import Clasificador, es_concluyente, obtener_clasificador, validar_umbral
 from preprocesado import EntradaInvalida
@@ -26,7 +28,7 @@ from preprocesado import EntradaInvalida
 logger = logging.getLogger("plantvillage")
 
 AVISO = (
-    "**⚠️ Herramienta demostrativa.** No sustituye el diagnóstico de un profesional agronómico. "
+    "Herramienta demostrativa. No sustituye el diagnóstico de un profesional agronómico. "
     "El modelo se entrenó con imágenes de laboratorio (una sola hoja sobre fondo uniforme), "
     "por lo que puede fallar con fotos tomadas en campo o con objetos que no sean hojas."
 )
@@ -41,7 +43,7 @@ AVISO_ALMACENAMIENTO = (
     "ℹ️ En un Space gratuito de Hugging Face el almacenamiento es **efímero**: el historial "
     "puede perderse cuando el Space se reinicia."
 )
-MENSAJE_SIN_IMAGEN = "Sube o captura una imagen de una hoja y pulsa **Diagnosticar**."
+MENSAJE_SIN_IMAGEN = "Sube o captura una imagen de una hoja y pulsa «Diagnosticar»."
 
 
 def _pct(valor: float) -> str:
@@ -114,14 +116,15 @@ class Servicio:
             hashlib.sha256(p.read_bytes()).hexdigest() for p in config.DIR_EJEMPLOS.glob("*") if p.is_file()
         }
 
-    def diagnosticar(self, ruta: str | None, umbral: float) -> tuple[str, list[list[str]]]:
+    def diagnosticar(self, ruta: str | None, umbral: float) -> str:
+        """Devuelve el HTML del panel de resultado (o de un aviso de error)."""
         if not ruta:
-            return MENSAJE_SIN_IMAGEN, []
+            return presentacion.vacio(MENSAJE_SIN_IMAGEN)
         try:
             umbral = validar_umbral(umbral)
         except ValueError as e:
             _borrar_subida(ruta)
-            return f"❌ {e}", []
+            return presentacion.alerta(str(e))
         conservar = False
         try:
             datos = preprocesado.leer_bytes(ruta)
@@ -130,11 +133,11 @@ class Servicio:
             x = preprocesado.preprocesar(preprocesado.decodificar(datos))
             pred = self.clasificador.predecir(x)
         except EntradaInvalida as e:
-            return f"❌ {e}", []
+            return presentacion.alerta(str(e))
         except Exception as e:  # noqa: BLE001 - se informa al usuario sin filtrar detalles internos
             # Solo el tipo: el texto de la excepción puede incluir rutas/nombres de archivo.
             logger.error("Fallo inesperado en el diagnóstico (%s).", type(e).__name__)
-            return "❌ Ocurrió un error inesperado al procesar la imagen. Inténtalo de nuevo.", []
+            return presentacion.alerta("Ocurrió un error inesperado al procesar la imagen. Inténtalo de nuevo.")
         finally:
             if not conservar:
                 _borrar_subida(ruta)
@@ -146,23 +149,7 @@ class Servicio:
         except Exception as e:  # noqa: BLE001 - el historial no debe impedir el diagnóstico
             logger.error("No se pudo registrar la consulta (%s).", type(e).__name__)
 
-        filas = [
-            [str(i), etiquetas.nombre_legible(h.clase), _pct(h.confianza)]
-            for i, h in enumerate(pred.hipotesis, start=1)
-        ]
-        if concluyente:
-            resumen = (
-                f"### Hipótesis principal: {etiquetas.nombre_legible(top.clase)}\n\n"
-                f"**Confianza del modelo:** {_pct(top.confianza)} (umbral: {_pct(umbral)})"
-            )
-        else:
-            resumen = (
-                "### Resultado no concluyente\n\n"
-                f"La confianza del modelo en la hipótesis principal ({_pct(top.confianza)}) queda por debajo "
-                f"del umbral configurado ({_pct(umbral)}). No tomes esta salida como un diagnóstico firme; "
-                "prueba con otra foto (una sola hoja, buena luz, fondo uniforme). Estas son las hipótesis más probables:"
-            )
-        return resumen, filas
+        return presentacion.resultado(pred, umbral, concluyente)
 
 
 def _texto_acerca(clasificador: Clasificador | None) -> str:
@@ -208,14 +195,14 @@ def construir_demo(
     servicio = Servicio(clasificador, repositorio) if clasificador is not None else None
     panel = PanelAdmin(auth, repositorio, clasificador)
 
-    def diagnosticar(ruta: str | None, umbral: float) -> tuple[str, list[list[str]]]:
+    def diagnosticar(ruta: str | None, umbral: float) -> str:
         if servicio is None:
-            return "❌ El modelo no está disponible.", []
+            return presentacion.alerta("El modelo no está disponible.")
         return servicio.diagnosticar(ruta, umbral)
 
     with gr.Blocks(title="Diagnóstico de hojas · PlantVillage", delete_cache=config.DELETE_CACHE) as demo:
-        gr.Markdown("# 🌿 Diagnóstico de enfermedades en hojas")
-        gr.Markdown(AVISO)  # fuera de las pestañas: visible siempre
+        gr.HTML(presentacion.cabecera())
+        gr.HTML(presentacion.aviso_permanente(AVISO))  # fuera de las pestañas: visible siempre
 
         with gr.Tabs():
             # ---------------------------------------------------------- Diagnóstico
@@ -235,11 +222,7 @@ def construir_demo(
                         )
                         boton = gr.Button("Diagnosticar", variant="primary")
                     with gr.Column():
-                        resumen = gr.Markdown(MENSAJE_SIN_IMAGEN)
-                        top3 = gr.Dataframe(
-                            headers=["#", "Hipótesis", "Confianza del modelo"],
-                            datatype="str", interactive=False, row_count=3, wrap=True,
-                        )
+                        resultado = gr.HTML(presentacion.vacio(MENSAJE_SIN_IMAGEN))
                 ejemplos = sorted(config.DIR_EJEMPLOS.glob("*.jpg"))
                 gr.Examples(
                     examples=[[str(p)] for p in ejemplos],
@@ -248,8 +231,14 @@ def construir_demo(
                     label="Ejemplos (haz clic y pulsa «Diagnosticar»)",
                     cache_examples=False,
                 )
-                boton.click(diagnosticar, [imagen, umbral], [resumen, top3], api_name="diagnosticar")
+                boton.click(diagnosticar, [imagen, umbral], [resultado], api_name="diagnosticar")
                 gr.Markdown(AVISO_HISTORIAL)
+
+            # ------------------------------------------------------ Textos explicativos
+            with gr.Tab("Para qué sirve"):
+                gr.Markdown(contenido.cargar("para_que_sirve"), elem_classes=["pv-lectura"])
+            with gr.Tab("Cómo se hizo"):
+                gr.Markdown(contenido.cargar("como_se_hizo"), elem_classes=["pv-lectura"])
 
             # ------------------------------------------------------- Administración
             with gr.Tab("Administración"):
@@ -362,7 +351,9 @@ def main() -> None:
         max_file_size=config.MAX_BYTES,
         show_error=False,
         footer_links=["gradio"],
-        theme=gr.themes.Soft(),
+        theme=presentacion.crear_tema(),
+        css_paths=[presentacion.RUTA_CSS],
+        js=presentacion.JS_TEMA_CLARO,
     )
 
 

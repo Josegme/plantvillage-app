@@ -1,6 +1,7 @@
 """Lógica del diagnóstico (umbral en la salida, historial, privacidad de temporales y logs)."""
 from __future__ import annotations
 
+import html
 import logging
 import re
 import shutil
@@ -53,51 +54,71 @@ def _servicio(repo: Historial, **kw) -> app.Servicio:
     return app.Servicio(ClasificadorFalso(**kw), repo)
 
 
+def _texto(fragmento_html: str) -> str:
+    """Texto visible de un fragmento HTML (sin etiquetas)."""
+    return html.unescape(re.sub(r"<[^>]+>", " ", fragmento_html))
+
+
 def test_resultado_concluyente_usa_confianza_y_registra(repo: Historial, foto: Path) -> None:
-    resumen, filas = _servicio(repo, confianza=0.9).diagnosticar(str(foto), 0.6)
-    assert "Confianza del modelo" in resumen and "90,0 %" in resumen
-    assert "no concluyente" not in resumen.lower()
-    assert [f[1] for f in filas] == ["Tomate — Tizón temprano", "Tomate — Sana", "Manzana — Sana"]
+    salida = _servicio(repo, confianza=0.9).diagnosticar(str(foto), 0.6)
+    texto = _texto(salida)
+    assert "Confianza del modelo: 90,0 %" in texto
+    assert "no concluyente" not in texto.lower()
+    assert "pv-resultado--firme" in salida
+    for nombre in ("Tomate — Tizón temprano", "Tomate — Sana", "Manzana — Sana"):
+        assert nombre in texto
     (fila,) = repo.consultar()
     assert fila[2] == "Tomato___Early_blight" and fila[4] == 0 and len(fila[6]) == config.LONGITUD_HASH
 
 
 def test_resultado_no_concluyente_sigue_mostrando_top3(repo: Historial, foto: Path) -> None:
-    resumen, filas = _servicio(repo, confianza=0.5).diagnosticar(str(foto), 0.6)
-    assert "Resultado no concluyente" in resumen
-    assert len(filas) == 3
+    salida = _servicio(repo, confianza=0.5).diagnosticar(str(foto), 0.6)
+    assert "Resultado no concluyente" in salida and "pv-resultado--nc" in salida
+    assert salida.count("<li>") == 3
     assert repo.consultar()[0][4] == 1
 
 
+def test_el_medidor_marca_el_umbral_y_la_confianza(repo: Historial, foto: Path) -> None:
+    salida = _servicio(repo, confianza=0.9).diagnosticar(str(foto), 0.65)
+    assert 'class="pv-umbral" style="left:65.0%"' in salida
+    assert 'class="pv-relleno" style="width:90.0%"' in salida
+    assert 'role="meter"' in salida and 'aria-valuenow="90.0"' in salida
+
+
 def test_umbral_exacto_es_concluyente(repo: Historial, foto: Path) -> None:
-    resumen, _ = _servicio(repo, confianza=0.6).diagnosticar(str(foto), 0.6)
-    assert "Resultado no concluyente" not in resumen
+    salida = _servicio(repo, confianza=0.6).diagnosticar(str(foto), 0.6)
+    assert "Resultado no concluyente" not in salida
 
 
 def test_umbral_cambiado_por_el_usuario(repo: Historial, foto: Path) -> None:
     servicio = _servicio(repo, confianza=0.7)
-    assert "no concluyente" not in servicio.diagnosticar(str(foto), 0.6)[0].lower()
-    assert "Resultado no concluyente" in servicio.diagnosticar(str(foto), 0.8)[0]
+    assert "no concluyente" not in _texto(servicio.diagnosticar(str(foto), 0.6)).lower()
+    assert "Resultado no concluyente" in servicio.diagnosticar(str(foto), 0.8)
 
 
 def test_nunca_aparece_la_palabra_probabilidad(repo: Historial, foto: Path) -> None:
-    textos = [app.AVISO, app.AVISO_HISTORIAL, app.AVISO_ALMACENAMIENTO, app.MENSAJE_SIN_IMAGEN, app._texto_acerca(None)]
+    import contenido
+    import presentacion
+
+    textos = [
+        app.AVISO, app.AVISO_HISTORIAL, app.AVISO_ALMACENAMIENTO, app.MENSAJE_SIN_IMAGEN, app._texto_acerca(None),
+        _texto(presentacion.cabecera()), contenido.cargar("para_que_sirve"), contenido.cargar("como_se_hizo"),
+    ]
     for conf in (0.9, 0.3):
-        resumen, filas = _servicio(repo, confianza=conf).diagnosticar(str(foto), 0.6)
-        textos += [resumen, *(c for f in filas for c in f)]
+        textos.append(_texto(_servicio(repo, confianza=conf).diagnosticar(str(foto), 0.6)))
     assert not any(re.search("probabilidad", t, re.IGNORECASE) for t in textos)
 
 
 def test_sin_imagen_no_registra(repo: Historial) -> None:
-    resumen, filas = _servicio(repo).diagnosticar(None, 0.6)
-    assert resumen == app.MENSAJE_SIN_IMAGEN and filas == []
+    salida = _servicio(repo).diagnosticar(None, 0.6)
+    assert "pv-vacio" in salida and _texto(salida).strip() == app.MENSAJE_SIN_IMAGEN
     assert repo.contar() == 0
 
 
 @pytest.mark.parametrize("umbral", [float("nan"), -1, 2, "x"])
 def test_umbral_invalido_da_mensaje_y_no_registra(repo: Historial, foto: Path, umbral: object) -> None:
-    resumen, filas = _servicio(repo).diagnosticar(str(foto), umbral)  # type: ignore[arg-type]
-    assert resumen.startswith("❌") and filas == []
+    salida = _servicio(repo).diagnosticar(str(foto), umbral)  # type: ignore[arg-type]
+    assert 'role="alert"' in salida
     assert repo.contar() == 0
 
 
@@ -107,9 +128,16 @@ def test_entradas_invalidas_dan_mensaje_claro_y_no_registran(repo: Historial, tm
     gif = tmp_path / "a.gif"
     Image.new("RGB", (4, 4)).save(gif)
     for ruta in (mala, gif, tmp_path / "no_existe.jpg"):
-        resumen, filas = _servicio(repo).diagnosticar(str(ruta), 0.6)
-        assert resumen.startswith("❌") and filas == []
+        salida = _servicio(repo).diagnosticar(str(ruta), 0.6)
+        assert 'role="alert"' in salida and "pv-resultado" not in salida
     assert repo.contar() == 0
+
+
+def test_los_textos_del_modelo_se_escapan_en_el_html(repo: Historial, foto: Path) -> None:
+    import presentacion
+
+    assert "<script>" not in presentacion.alerta("<script>alert(1)</script>")
+    assert "&lt;script&gt;" in presentacion.alerta("<script>alert(1)</script>")
 
 
 # --- privacidad: copias temporales y logs ---
@@ -161,7 +189,7 @@ def test_los_logs_no_contienen_nombres_de_archivo(repo: Historial, subida_en_cac
     caplog.set_level(logging.DEBUG)
     # Una excepción cuyo mensaje incluye la ruta (como hacen los OSError reales).
     _servicio(repo, error=FileNotFoundError(2, "No such file", str(copia))).diagnosticar(str(copia), 0.6)
-    resumen, _ = _servicio(repo, error=RuntimeError(f"fallo con {copia}")).diagnosticar(str(copia), 0.6)
+    resumen = _servicio(repo, error=RuntimeError(f"fallo con {copia}")).diagnosticar(str(copia), 0.6)
     assert "nombre_secreto" not in caplog.text
     assert "nombre_secreto" not in resumen
     assert caplog.records, "se esperaba al menos un registro de error"
