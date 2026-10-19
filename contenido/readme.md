@@ -69,6 +69,8 @@ $env:ADMIN_PASSWORD = "elige-una-clave"
 | `docs/` | Página del proyecto (GitHub Pages), generada con `scripts/generar_pagina.py`. |
 | `modelo/` | Modelo entrenado, clases, métricas, matriz de confusión y fotos de ejemplo. |
 | `tests/` | Pruebas automáticas. |
+| `CONTRIBUTING.md` | Cómo proponer mejoras. |
+| `scripts/` | Generadores de la página, el README y las imágenes para redes. |
 
 ## Pruebas
 
@@ -92,6 +94,10 @@ Se usó transferencia de aprendizaje con **MobileNetV2** preentrenada en ImageNe
 ## Despliegue en Hugging Face Spaces
 
 Un Space de tipo Gradio requiere un plan de pago, así que por ahora la aplicación se ejecuta en local. Cuando se despliegue, el `README.md` del Space debe empezar con el bloque descrito en [`despliegue/huggingface-spaces.md`](despliegue/huggingface-spaces.md).
+
+## Contribuir
+
+Este proyecto es un ejercicio de aprendizaje y **cualquier mejora es bienvenida**: probarlo con fotos del campo, añadir cultivos, traducir la interfaz, mejorar el modelo o corregir un texto. Mira [`CONTRIBUTING.md`](CONTRIBUTING.md) para saber cómo proponer un cambio, o abre un *issue* con tu idea.
 
 ## Créditos
 

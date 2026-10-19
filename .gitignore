@@ -22,3 +22,6 @@ Thumbs.db
 
 # Stub que Gradio genera junto a las subclases de componentes
 app.pyi
+
+# Im?genes de redes sociales (se regeneran con scripts/generar_posts.py)
+redes/instagram/*.png
