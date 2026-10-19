@@ -213,9 +213,10 @@ cd plantvillage-app
 py -3.13 -m venv .venv
 .venv\\Scripts\\python.exe -m pip install -r requirements.txt
 .venv\\Scripts\\python.exe app.py</code></pre>
-    <p>Después abre <code>http://127.0.0.1:7860</code> en el navegador. En macOS o Linux, usa <code>python3.13</code> y
-    <code>.venv/bin/python</code>. La pestaña de administración solo se activa si defines antes la variable de entorno
-    <code>ADMIN_PASSWORD</code>.</p>
+    <p>Después abre <code>http://127.0.0.1:7860</code> en el navegador. En Windows, una vez creado el entorno, basta con
+    hacer doble clic en <code>iniciar.bat</code>: arranca la aplicación y abre el navegador cuando está lista. En macOS o Linux, usa
+    <code>python3.13</code> y <code>.venv/bin/python</code>. La pestaña de administración solo se activa si defines antes
+    la variable de entorno <code>ADMIN_PASSWORD</code> (el archivo <code>iniciar.bat</code> te pide la clave al arrancar).</p>
   </section>
 
   <section id="creditos" class="lectura" aria-labelledby="t-creditos">
