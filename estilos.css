@@ -18,20 +18,20 @@
   --pv-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
 }
 
-.gradio-container { max-width: 1040px !important; margin-inline: auto; }
+.gradio-container { max-width: 1180px !important; margin-inline: auto; }
 
 /* Cabecera */
 .pv-cabecera { display: flex; align-items: center; gap: 1rem; padding: 0.5rem 0 0.25rem; }
 .pv-marca { flex: none; }
-.pv-titulo { margin: 0; font-size: 1.75rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.15; color: var(--pv-tinta); }
-.pv-subtitulo { margin: 0.2rem 0 0; color: var(--pv-tinta-suave); font-size: 1.02rem; }
+.pv-titulo { margin: 0; font-size: 2.1rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.15; color: var(--pv-tinta); }
+.pv-subtitulo { margin: 0.25rem 0 0; color: var(--pv-tinta-suave); font-size: 1.2rem; }
 
 /* Aviso permanente (siempre visible, fuera de las pestañas) */
 .pv-aviso {
   margin: 0.5rem 0 0.25rem; padding: 0.6rem 0.9rem;
   background: var(--pv-ocre-fondo); color: var(--pv-ocre-texto);
   border-left: 3px solid var(--pv-ocre); border-radius: 2px;
-  font-size: 0.92rem; line-height: 1.5;
+  font-size: 1.05rem; line-height: 1.55;
 }
 
 /* Estados del panel de resultado */
@@ -50,25 +50,25 @@
 }
 .pv-resultado--firme { border-top-color: var(--pv-clorofila); }
 .pv-resultado--nc { border-top-color: var(--pv-ocre); }
-.pv-cultivo { margin: 0; color: var(--pv-tinta-suave); font-size: 0.95rem; }
-.pv-estado { margin: 0.1rem 0 0.9rem; font-size: 1.85rem; font-weight: 650; line-height: 1.15; letter-spacing: -0.01em; }
-.pv-explicacion { margin: 0 0 1rem; line-height: 1.55; color: var(--pv-ocre-texto); }
+.pv-cultivo { margin: 0; color: var(--pv-tinta-suave); font-size: 1.1rem; }
+.pv-estado { margin: 0.1rem 0 1rem; font-size: 2.3rem; font-weight: 650; line-height: 1.15; letter-spacing: -0.01em; }
+.pv-explicacion { margin: 0 0 1.1rem; font-size: 1.08rem; line-height: 1.6; color: var(--pv-ocre-texto); }
 
 .pv-medidor { margin-bottom: 0.25rem; }
-.pv-pista { position: relative; height: 10px; background: #DCE4D7; border-radius: 2px; }
+.pv-pista { position: relative; height: 14px; background: #DCE4D7; border-radius: 2px; }
 .pv-relleno { height: 100%; background: var(--pv-clorofila); border-radius: 2px; }
 .pv-resultado--nc .pv-relleno { background: var(--pv-ocre); }
-.pv-umbral { position: absolute; top: -5px; bottom: -5px; width: 2px; margin-left: -1px; background: var(--pv-tinta); }
-.pv-medidor-texto { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; align-items: baseline; margin: 0.6rem 0 0; }
-.pv-medidor-texto span { color: var(--pv-tinta-suave); font-size: 0.85rem; }
+.pv-umbral { position: absolute; top: -6px; bottom: -6px; width: 3px; margin-left: -1px; background: var(--pv-tinta); }
+.pv-medidor-texto { display: flex; flex-wrap: wrap; gap: 0.15rem 1rem; align-items: baseline; margin: 0.7rem 0 0; font-size: 1.15rem; }
+.pv-medidor-texto span { color: var(--pv-tinta-suave); font-size: 0.98rem; }
 
-.pv-sub { margin: 1.35rem 0 0.35rem; font-size: 1rem; font-weight: 600; }
+.pv-sub { margin: 1.5rem 0 0.4rem; font-size: 1.15rem; font-weight: 600; }
 .pv-alternativas { list-style: none; margin: 0; padding: 0; }
 .pv-alternativas li {
   display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(56px, 1fr) 4.6em; gap: 0.2rem 0.8rem;
-  align-items: center; padding: 0.5rem 0; border-top: 1px solid var(--pv-linea-suave);
+  align-items: center; padding: 0.65rem 0; border-top: 1px solid var(--pv-linea-suave); font-size: 1.08rem;
 }
-.pv-barra { display: block; height: 6px; background: var(--pv-linea-suave); border-radius: 2px; overflow: hidden; }
+.pv-barra { display: block; height: 8px; background: var(--pv-linea-suave); border-radius: 2px; overflow: hidden; }
 .pv-barra i { display: block; height: 100%; background: var(--pv-clorofila-clara); }
 .pv-valor { text-align: right; font-variant-numeric: tabular-nums; color: var(--pv-tinta-suave); }
 @media (max-width: 520px) {
@@ -77,19 +77,19 @@
 }
 
 /* Textos largos (pestañas «Para qué sirve» y «Cómo se hizo»): serif, renglón corto */
-.pv-lectura { max-width: 68ch; }
+.pv-lectura { max-width: 66ch; }
 .pv-lectura, .pv-lectura p, .pv-lectura li {
-  font-family: var(--pv-serif); font-size: 1.06rem; line-height: 1.65; color: var(--pv-tinta);
+  font-family: var(--pv-serif); font-size: 1.18rem; line-height: 1.7; color: var(--pv-tinta);
 }
 .pv-lectura h2, .pv-lectura h3, .pv-lectura table, .pv-lectura th, .pv-lectura td {
   font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
 }
-.pv-lectura h2 { margin: 0.5rem 0 1rem; font-size: 1.7rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.2; }
-.pv-lectura h3 { margin: 2.2rem 0 0.5rem; font-size: 1.2rem; font-weight: 650; line-height: 1.3; }
+.pv-lectura h2 { margin: 0.5rem 0 1rem; font-size: 2rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.2; }
+.pv-lectura h3 { margin: 2.4rem 0 0.6rem; font-size: 1.4rem; font-weight: 650; line-height: 1.3; }
 .pv-lectura p { margin: 0 0 0.9rem; }
 .pv-lectura ul, .pv-lectura ol { margin: 0 0 1rem; padding-left: 1.3rem; }
 .pv-lectura li { margin-bottom: 0.4rem; }
-.pv-lectura table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.2rem; font-size: 0.95rem; line-height: 1.45; }
+.pv-lectura table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.2rem; font-size: 1.05rem; line-height: 1.5; }
 .pv-lectura th, .pv-lectura td { padding: 0.55rem 0.7rem 0.55rem 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--pv-linea); }
 .pv-lectura th { font-weight: 600; border-bottom: 2px solid var(--pv-tinta); }
 .pv-lectura em { font-style: italic; }
@@ -114,3 +114,7 @@
 .gradio-container textarea:focus-visible {
   outline: 2px solid var(--pv-clorofila); outline-offset: 2px;
 }
+
+/* Pestañas y etiquetas algo más grandes para leer con comodidad */
+.gradio-container [role="tab"], .gradio-container .tab-container button { font-size: 1.08rem; }
+.gradio-container label span, .gradio-container .info-text { font-size: 1rem; }

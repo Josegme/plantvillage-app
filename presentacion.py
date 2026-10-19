@@ -45,6 +45,7 @@ def crear_tema() -> gr.themes.Base:
         font=("Segoe UI", "system-ui", "-apple-system", "sans-serif"),  # del sistema: sin peticiones a terceros
         font_mono=("Consolas", "ui-monospace", "monospace"),
         radius_size=gr.themes.sizes.radius_sm,
+        text_size=gr.themes.sizes.text_lg,  # texto base de 16 px (el predeterminado de Gradio es 14 px)
     ).set(
         body_background_fill="#F2F5EE",
         body_text_color="#1D2A22",

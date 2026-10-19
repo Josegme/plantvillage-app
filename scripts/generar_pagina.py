@@ -245,5 +245,13 @@ def generar(destino: Path = DOCS) -> Path:
     return salida
 
 
+def generar_readme(destino: Path = RAIZ / "README.md") -> Path:
+    """README.md de GitHub, a partir de ``contenido/readme.md`` con las cifras leídas de ``modelo/``."""
+    plantilla = (contenido.DIR_CONTENIDO / "readme.md").read_text(encoding="utf-8")
+    destino.write_text(contenido.renderizar(plantilla), encoding="utf-8")
+    return destino
+
+
 if __name__ == "__main__":
     print(f"Escrito {generar().relative_to(RAIZ)}")
+    print(f"Escrito {generar_readme().relative_to(RAIZ)}")

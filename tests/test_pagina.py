@@ -132,3 +132,49 @@ def test_las_secciones_del_menu_existen(pagina: str) -> None:
     anclas = re.findall(r'<a href="#([\w-]+)">', pagina)
     ids = set(re.findall(r'\bid="([\w-]+)"', pagina))
     assert anclas and set(anclas) <= ids, set(anclas) - ids
+
+
+# --- README.md (se genera desde contenido/readme.md con las cifras de modelo/) ---
+@pytest.fixture(scope="module")
+def readme(tmp_path_factory: pytest.TempPathFactory) -> str:
+    return generar_pagina.generar_readme(tmp_path_factory.mktemp("readme") / "README.md").read_text(encoding="utf-8")
+
+
+def test_el_readme_esta_al_dia(readme: str) -> None:
+    """README.md debe ser lo que genera el script (si no, ejecutar scripts/generar_pagina.py)."""
+    assert (config.BASE_DIR / "README.md").read_text(encoding="utf-8") == readme
+
+
+def test_el_readme_no_lleva_el_bloque_de_spaces_y_tiene_las_secciones_clave(readme: str) -> None:
+    assert not readme.lstrip().startswith("---")
+    for seccion in ("Resultados del modelo", "Ejecutarla en tu equipo", "Estructura del proyecto", "Pruebas",
+                    "Privacidad y seguridad", "Créditos"):
+        assert f"## {seccion}" in readme, seccion
+
+
+def test_el_readme_usa_las_cifras_de_los_archivos(readme: str) -> None:
+    import contenido
+
+    v = contenido.valores()
+    for clave in ("exactitud_test", "f1_macro_test", "top3_test", "n_test"):
+        assert v[clave] in readme, clave
+    assert "{{" not in readme and not re.search("probabilidad", readme, re.IGNORECASE)
+
+
+def test_los_enlaces_locales_del_readme_existen(readme: str) -> None:
+    locales = [r for r in re.findall(r"\]\(([^)\s]+)\)", readme) if not r.startswith(("http", "#"))]
+    assert locales
+    assert not [r for r in locales if not (config.BASE_DIR / r.split("#")[0]).exists()]
+
+
+def test_los_archivos_de_la_tabla_de_estructura_existen(readme: str) -> None:
+    bloque = readme.split("## Estructura del proyecto")[1].split("\n## ")[0]
+    nombres = re.findall(r"`([\w./-]+)`", "\n".join(f.split("|")[1] for f in bloque.splitlines() if f.startswith("| `")))
+    assert len(nombres) >= 12
+    assert not [n for n in nombres if not (config.BASE_DIR / n).exists()]
+
+
+def test_el_bloque_de_spaces_esta_documentado() -> None:
+    texto = (config.BASE_DIR / "despliegue" / "huggingface-spaces.md").read_text(encoding="utf-8")
+    pin = re.search(r"gradio==([\d.]+)", (config.BASE_DIR / "requirements.txt").read_text(encoding="utf-8")).group(1)
+    assert f"sdk_version: {pin}" in texto and "app_file: app.py" in texto
