@@ -1,0 +1,146 @@
+{
+  "Apple_Apple_scab.jpg": {
+    "top1": "Apple___Apple_scab",
+    "confianza_top1": 1.0,
+    "top3": [
+      {
+        "clase": "Apple___Apple_scab",
+        "confianza": 1.0
+      },
+      {
+        "clase": "Apple___healthy",
+        "confianza": 0.0
+      },
+      {
+        "clase": "Apple___Cedar_apple_rust",
+        "confianza": 0.0
+      }
+    ]
+  },
+  "Corn_maize_Common_rust.jpg": {
+    "top1": "Corn_(maize)___Common_rust_",
+    "confianza_top1": 1.0,
+    "top3": [
+      {
+        "clase": "Corn_(maize)___Common_rust_",
+        "confianza": 1.0
+      },
+      {
+        "clase": "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+        "confianza": 0.0
+      },
+      {
+        "clase": "Corn_(maize)___Northern_Leaf_Blight",
+        "confianza": 0.0
+      }
+    ]
+  },
+  "Grape_Black_rot.jpg": {
+    "top1": "Grape___Black_rot",
+    "confianza_top1": 0.911,
+    "top3": [
+      {
+        "clase": "Grape___Black_rot",
+        "confianza": 0.911
+      },
+      {
+        "clase": "Grape___Esca_(Black_Measles)",
+        "confianza": 0.0889
+      },
+      {
+        "clase": "Tomato___Septoria_leaf_spot",
+        "confianza": 0.0
+      }
+    ]
+  },
+  "Potato_Late_blight.jpg": {
+    "top1": "Potato___Late_blight",
+    "confianza_top1": 1.0,
+    "top3": [
+      {
+        "clase": "Potato___Late_blight",
+        "confianza": 1.0
+      },
+      {
+        "clase": "Tomato___Late_blight",
+        "confianza": 0.0
+      },
+      {
+        "clase": "Potato___Early_blight",
+        "confianza": 0.0
+      }
+    ]
+  },
+  "Strawberry_healthy.jpg": {
+    "top1": "Strawberry___healthy",
+    "confianza_top1": 1.0,
+    "top3": [
+      {
+        "clase": "Strawberry___healthy",
+        "confianza": 1.0
+      },
+      {
+        "clase": "Apple___Black_rot",
+        "confianza": 0.0
+      },
+      {
+        "clase": "Raspberry___healthy",
+        "confianza": 0.0
+      }
+    ]
+  },
+  "Tomato_Early_blight.jpg": {
+    "top1": "Tomato___Early_blight",
+    "confianza_top1": 0.9448,
+    "top3": [
+      {
+        "clase": "Tomato___Early_blight",
+        "confianza": 0.9448
+      },
+      {
+        "clase": "Tomato___Late_blight",
+        "confianza": 0.0546
+      },
+      {
+        "clase": "Tomato___Target_Spot",
+        "confianza": 0.0004
+      }
+    ]
+  },
+  "Tomato_Tomato_Yellow_Leaf_Curl_Virus.jpg": {
+    "top1": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+    "confianza_top1": 0.9909,
+    "top3": [
+      {
+        "clase": "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+        "confianza": 0.9909
+      },
+      {
+        "clase": "Pepper,_bell___healthy",
+        "confianza": 0.0038
+      },
+      {
+        "clase": "Tomato___Early_blight",
+        "confianza": 0.0032
+      }
+    ]
+  },
+  "Tomato_healthy.jpg": {
+    "top1": "Tomato___healthy",
+    "confianza_top1": 1.0,
+    "top3": [
+      {
+        "clase": "Tomato___healthy",
+        "confianza": 1.0
+      },
+      {
+        "clase": "Cherry_(including_sour)___healthy",
+        "confianza": 0.0
+      },
+      {
+        "clase": "Tomato___Target_Spot",
+        "confianza": 0.0
+      }
+    ]
+  }
+}
