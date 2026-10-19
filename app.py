@@ -6,8 +6,11 @@ from __future__ import annotations
 
 import config  # primero: fija variables de entorno que leen TensorFlow y Gradio
 
+import base64
 import hashlib
 import logging
+import re
+import uuid
 from pathlib import Path
 
 import gradio as gr
@@ -28,9 +31,11 @@ AVISO = (
     "por lo que puede fallar con fotos tomadas en campo o con objetos que no sean hojas."
 )
 AVISO_HISTORIAL = (
+    "**Privacidad.** La copia temporal de tu imagen se elimina del servidor al terminar la consulta; "
+    "si la subes y no llegas a diagnosticarla, se borra automáticamente en unos 6 minutos como máximo. "
     "Del historial solo se guardan metadatos de cada consulta (fecha UTC, hipótesis principal, "
-    "confianza, si fue «no concluyente», latencia y una huella SHA-256 truncada de la imagen). "
-    "La imagen nunca se guarda en el historial."
+    "confianza, si fue «no concluyente», latencia y una huella SHA-256 truncada de la imagen); "
+    "la imagen nunca se guarda en él."
 )
 AVISO_ALMACENAMIENTO = (
     "ℹ️ En un Space gratuito de Hugging Face el almacenamiento es **efímero**: el historial "
@@ -53,6 +58,50 @@ def _borrar_subida(ruta: str | Path) -> None:
         logger.warning("No se pudo borrar una subida temporal.")  # sin nombres de archivo
 
 
+_EXT_POR_MIME = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+_DATA_URL = re.compile(r"^data:(image/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=\s]+)$")
+
+
+def _volcar_data_url(url: str) -> str | None:
+    """Guarda una imagen recibida como data-URL en el directorio temporal; ``None`` si no es válida."""
+    if len(url) > 4 * config.MAX_BYTES // 3 + 200:  # cota del tamaño en base64 de un archivo de 5 MB
+        return None
+    m = _DATA_URL.match(url)
+    if not m:
+        return None
+    try:
+        datos = base64.b64decode(m.group(2), validate=False)
+    except ValueError:
+        return None
+    ruta = config.GRADIO_TMP_DIR / f"{uuid.uuid4().hex}{_EXT_POR_MIME[m.group(1)]}"
+    ruta.write_bytes(datos)  # el tamaño máximo se comprueba después, en preprocesado.leer_bytes
+    return str(ruta)
+
+
+class ImagenSinDecodificar(gr.Image):
+    """``gr.Image`` que entrega solo la ruta del archivo subido.
+
+    El preprocesado de ``gr.Image`` abre el archivo con PIL antes de llegar a nuestro código;
+    si la imagen está dañada o es una decompression bomb, Gradio vuelca un traceback con la ruta
+    (y el nombre de archivo del usuario) al log y deja la copia temporal sin borrar. Aquí la
+    validación la hace ``preprocesado``, que da un mensaje claro y no registra nombres.
+    La comprobación de que la ruta pertenece a la caché de subidas sigue haciéndola Gradio
+    antes de llamar a este método.
+    """
+
+    def get_block_name(self) -> str:
+        return "image"  # el frontend identifica el componente por este nombre: reutiliza el de gr.Image
+
+    def preprocess(self, payload):  # type: ignore[no-untyped-def,override]
+        if payload is None:
+            return None
+        if payload.path:
+            return payload.path
+        if payload.url and payload.url.startswith("data:"):
+            return _volcar_data_url(payload.url)
+        return None
+
+
 class Servicio:
     """Diagnóstico: valida, preprocesa, predice y registra solo metadatos."""
 
@@ -68,17 +117,19 @@ class Servicio:
     def diagnosticar(self, ruta: str | None, umbral: float) -> tuple[str, list[list[str]]]:
         if not ruta:
             return MENSAJE_SIN_IMAGEN, []
-        conservar = False
         try:
             umbral = validar_umbral(umbral)
+        except ValueError as e:
+            _borrar_subida(ruta)
+            return f"❌ {e}", []
+        conservar = False
+        try:
             datos = preprocesado.leer_bytes(ruta)
             conservar = hashlib.sha256(datos).hexdigest() in self._hashes_ejemplos
             huella = preprocesado.hash_bytes(datos)
             x = preprocesado.preprocesar(preprocesado.decodificar(datos))
             pred = self.clasificador.predecir(x)
         except EntradaInvalida as e:
-            return f"❌ {e}", []
-        except ValueError as e:
             return f"❌ {e}", []
         except Exception as e:  # noqa: BLE001 - se informa al usuario sin filtrar detalles internos
             # Solo el tipo: el texto de la excepción puede incluir rutas/nombres de archivo.
@@ -171,7 +222,7 @@ def construir_demo(
             with gr.Tab("Diagnóstico"):
                 with gr.Row():
                     with gr.Column():
-                        imagen = gr.Image(
+                        imagen = ImagenSinDecodificar(
                             label="Foto de la hoja",
                             sources=["upload", "webcam"],
                             type="filepath",

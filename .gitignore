@@ -19,3 +19,6 @@ data/
 *.swo
 .DS_Store
 Thumbs.db
+
+# Stub que Gradio genera junto a las subclases de componentes
+app.pyi
