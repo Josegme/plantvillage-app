@@ -43,6 +43,18 @@ def metricas_en_filas() -> list[list[str]]:
     return [[_ETIQUETAS.get(k, k), _formatear(k, v)] for k, v in cargar_metricas().items()]
 
 
+def clases_con_menor_recall(n: int = 5) -> list[tuple[str, float]]:
+    """Las ``n`` clases con menor recall en test, leídas del reporte (clase, recall)."""
+    cabecera, filas = cargar_reporte_por_clase()
+    col = cabecera.index("recall")
+    pares = [(f[0], float(f[col])) for f in filas if f and f[0] in _clases_validas()]
+    return sorted(pares, key=lambda p: p[1])[:n]
+
+
+def _clases_validas() -> set[str]:
+    return set(json.loads(config.RUTA_CLASES.read_text(encoding="utf-8")))
+
+
 def cargar_reporte_por_clase() -> tuple[list[str], list[list[str]]]:
     """Cabecera y filas de ``reporte_test_por_clase.csv`` (la primera columna es la clase)."""
     with config.RUTA_REPORTE_CLASES.open(encoding="utf-8", newline="") as f:
