@@ -178,3 +178,10 @@ def test_el_bloque_de_spaces_esta_documentado() -> None:
     texto = (config.BASE_DIR / "despliegue" / "huggingface-spaces.md").read_text(encoding="utf-8")
     pin = re.search(r"gradio==([\d.]+)", (config.BASE_DIR / "requirements.txt").read_text(encoding="utf-8")).group(1)
     assert f"sdk_version: {pin}" in texto and "app_file: app.py" in texto
+
+
+def test_licencia_mit_con_el_titular_correcto(readme: str) -> None:
+    texto = (config.BASE_DIR / "LICENSE").read_text(encoding="utf-8")
+    assert texto.startswith("MIT License")
+    assert re.search(r"^Copyright \(c\) \d{4} Josegme$", texto, re.M)
+    assert "## Licencia" in readme and "(LICENSE)" in readme

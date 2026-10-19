@@ -69,7 +69,7 @@ $env:ADMIN_PASSWORD = "elige-una-clave"
 | `docs/` | Página del proyecto (GitHub Pages), generada con `scripts/generar_pagina.py`. |
 | `modelo/` | Modelo entrenado, clases, métricas, matriz de confusión y fotos de ejemplo. |
 | `tests/` | Pruebas automáticas. |
-| `CONTRIBUTING.md` | Cómo proponer mejoras. |
+| `CONTRIBUTING.md`, `LICENSE` | Cómo proponer mejoras y licencia (MIT). |
 | `scripts/` | Generadores de la página, el README y las imágenes para redes. |
 
 ## Pruebas
@@ -98,6 +98,10 @@ Un Space de tipo Gradio requiere un plan de pago, así que por ahora la aplicaci
 ## Contribuir
 
 Este proyecto es un ejercicio de aprendizaje y **cualquier mejora es bienvenida**: probarlo con fotos del campo, añadir cultivos, traducir la interfaz, mejorar el modelo o corregir un texto. Mira [`CONTRIBUTING.md`](CONTRIBUTING.md) para saber cómo proponer un cambio, o abre un *issue* con tu idea.
+
+## Licencia
+
+El código se distribuye bajo la [licencia MIT](LICENSE). El conjunto de datos PlantVillage, con el que se entrenó el modelo, conserva sus propios términos de uso.
 
 ## Créditos
 
